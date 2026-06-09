@@ -1,0 +1,128 @@
+import { describe, it, expect } from "vitest";
+import {
+  portfolios,
+  transactions,
+  fraudAlerts,
+  kycChecks,
+  financialReports,
+  metrics,
+} from "@/lib/demo-data";
+
+describe("Fintech AI Suite", () => {
+  describe("Portfolios", () => {
+    it("has exactly 4 portfolios", () => {
+      expect(portfolios).toHaveLength(4);
+    });
+
+    it("each portfolio has valid allocations that sum to 100%", () => {
+      for (const p of portfolios) {
+        const total = p.allocations.reduce((sum, a) => sum + a.percentage, 0);
+        expect(total).toBe(100);
+      }
+    });
+
+    it("total AUM across all portfolios matches metrics", () => {
+      const totalAum = portfolios.reduce((sum, p) => sum + p.aum, 0);
+      expect(totalAum).toBe(metrics.totalAum);
+    });
+
+    it("each portfolio allocation value matches its percentage of AUM", () => {
+      for (const p of portfolios) {
+        for (const a of p.allocations) {
+          const expectedValue = Math.round(p.aum * (a.percentage / 100));
+          // Allow small rounding diff
+          expect(Math.abs(a.value - expectedValue)).toBeLessThanOrEqual(1_000);
+        }
+      }
+    });
+  });
+
+  describe("Transactions", () => {
+    it("has exactly 15 transactions", () => {
+      expect(transactions).toHaveLength(15);
+    });
+
+    it("has exactly 4 flagged transactions matching metrics", () => {
+      const flagged = transactions.filter((t) => t.flagged);
+      expect(flagged).toHaveLength(metrics.flaggedTransactions);
+    });
+
+    it("every flagged transaction has a flag reason", () => {
+      for (const t of transactions.filter((t) => t.flagged)) {
+        expect(t.flagReason).toBeTruthy();
+        expect(typeof t.flagReason).toBe("string");
+        expect(t.flagReason!.length).toBeGreaterThan(0);
+      }
+    });
+
+    it("all transaction portfolioIds reference existing portfolios", () => {
+      const portfolioIds = new Set(portfolios.map((p) => p.id));
+      for (const t of transactions) {
+        expect(portfolioIds.has(t.portfolioId)).toBe(true);
+      }
+    });
+  });
+
+  describe("Fraud Alerts", () => {
+    it("has exactly 8 fraud alerts", () => {
+      expect(fraudAlerts).toHaveLength(8);
+    });
+
+    it("at least one critical alert exists matching metrics", () => {
+      const critical = fraudAlerts.filter((a) => a.severity === "critical");
+      expect(critical.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("all risk scores are between 0 and 100", () => {
+      for (const a of fraudAlerts) {
+        expect(a.riskScore).toBeGreaterThanOrEqual(0);
+        expect(a.riskScore).toBeLessThanOrEqual(100);
+      }
+    });
+  });
+
+  describe("KYC Checks", () => {
+    it("has exactly 6 KYC checks", () => {
+      expect(kycChecks).toHaveLength(6);
+    });
+
+    it("passed KYC checks have a verifiedAt date", () => {
+      const passed = kycChecks.filter((k) => k.status === "passed");
+      for (const k of passed) {
+        expect(k.verifiedAt).toBeTruthy();
+      }
+    });
+
+    it("all KYC scores are between 0 and 100", () => {
+      for (const k of kycChecks) {
+        expect(k.score).toBeGreaterThanOrEqual(0);
+        expect(k.score).toBeLessThanOrEqual(100);
+      }
+    });
+  });
+
+  describe("Financial Reports", () => {
+    it("has at least 1 financial report", () => {
+      expect(financialReports.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("every report has at least one section", () => {
+      for (const r of financialReports) {
+        expect(r.sections.length).toBeGreaterThanOrEqual(1);
+      }
+    });
+  });
+
+  describe("Metrics", () => {
+    it("metrics are internally consistent with data", () => {
+      expect(metrics.totalAum).toBeGreaterThan(0);
+      expect(metrics.totalTransactions).toBe(transactions.length);
+      expect(metrics.flaggedTransactions).toBe(
+        transactions.filter((t) => t.flagged).length,
+      );
+      expect(metrics.activeFraudAlerts).toBe(fraudAlerts.length);
+      expect(metrics.kycPassRate).toBeGreaterThanOrEqual(0);
+      expect(metrics.kycPassRate).toBeLessThanOrEqual(100);
+    });
+  });
+});
