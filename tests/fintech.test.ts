@@ -79,6 +79,26 @@ describe("Fintech AI Suite", () => {
         expect(a.riskScore).toBeLessThanOrEqual(100);
       }
     });
+
+    it("captures model confidence and false-positive risk for analyst triage", () => {
+      for (const a of fraudAlerts) {
+        expect(a.modelConfidence).toBeGreaterThanOrEqual(0);
+        expect(a.modelConfidence).toBeLessThanOrEqual(100);
+        expect(a.falsePositiveRisk).toBeGreaterThanOrEqual(0);
+        expect(a.falsePositiveRisk).toBeLessThanOrEqual(100);
+        expect(a.recommendedAction.length).toBeGreaterThan(20);
+      }
+    });
+
+    it("does not auto-escalate dismissed alert-fatigue candidates", () => {
+      const dismissedAlerts = fraudAlerts.filter((a) => a.status === "dismissed");
+      expect(dismissedAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const a of dismissedAlerts) {
+        expect(a.falsePositiveRisk).toBeGreaterThan(a.riskScore);
+        expect(a.severity).toBe("low");
+      }
+    });
   });
 
   describe("KYC Checks", () => {

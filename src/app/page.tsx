@@ -242,13 +242,23 @@ export default function FintechDashboard() {
                 <p className="mb-2 text-xs text-slate-600">
                   {alert.description}
                 </p>
-                <div className="flex items-center justify-between">
+                <p className="mb-2 rounded-md bg-slate-50 px-2 py-1 text-xs text-slate-600">
+                  <span className="font-semibold text-slate-700">Next action:</span>{" "}
+                  {alert.recommendedAction}
+                </p>
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs text-slate-400">
                     {formatDate(alert.detectedAt)}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="text-xs text-slate-500">
                       Risk: {alert.riskScore}/100
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      Confidence: {alert.modelConfidence}%
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      FP risk: {alert.falsePositiveRisk}%
                     </span>
                     <ProgressBar
                       value={alert.riskScore}

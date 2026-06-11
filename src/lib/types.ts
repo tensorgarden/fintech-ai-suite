@@ -36,8 +36,11 @@ export interface FraudAlert {
   transactionId?: string;
   severity: "low" | "medium" | "high" | "critical";
   riskScore: number; // 0-100
+  modelConfidence: number; // 0-100
+  falsePositiveRisk: number; // 0-100, higher means analysts should triage before escalation
   title: string;
   description: string;
+  recommendedAction: string;
   detectedAt: string;
   status: "new" | "investigating" | "resolved" | "dismissed";
   category: "anomaly" | "aml" | "identity" | "velocity" | "geographic";
