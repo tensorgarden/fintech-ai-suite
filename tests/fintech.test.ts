@@ -102,8 +102,8 @@ describe("Fintech AI Suite", () => {
   });
 
   describe("KYC Checks", () => {
-    it("has exactly 6 KYC checks", () => {
-      expect(kycChecks).toHaveLength(6);
+    it("has exactly 9 KYC checks", () => {
+      expect(kycChecks).toHaveLength(9);
     });
 
     it("passed KYC checks have a verifiedAt date", () => {
@@ -117,6 +117,32 @@ describe("Fintech AI Suite", () => {
       for (const k of kycChecks) {
         expect(k.score).toBeGreaterThanOrEqual(0);
         expect(k.score).toBeLessThanOrEqual(100);
+      }
+    });
+
+    it("every KYC check has a jurisdiction", () => {
+      for (const k of kycChecks) {
+        expect(k.jurisdiction).toBeTruthy();
+        expect(typeof k.jurisdiction).toBe("string");
+        expect(k.jurisdiction.length).toBe(2);
+      }
+    });
+
+    it("high-risk jurisdictions have pending or failed checks", () => {
+      const highRiskJdx = new Set(["KY", "AE"]);
+      for (const k of kycChecks.filter((k) => highRiskJdx.has(k.jurisdiction))) {
+        expect(["pending", "failed"]).toContain(k.status);
+      }
+    });
+
+    it("pending checks from non-US jurisdictions include jurisdiction-specific notes", () => {
+      const pendingNonUS = kycChecks.filter(
+        (k) => k.status === "pending" && k.jurisdiction !== "US",
+      );
+      expect(pendingNonUS.length).toBeGreaterThanOrEqual(1);
+      for (const k of pendingNonUS) {
+        expect(k.notes).toBeTruthy();
+        expect(k.notes!.length).toBeGreaterThan(10);
       }
     });
   });

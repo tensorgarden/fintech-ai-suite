@@ -103,12 +103,15 @@ export const fraudAlerts: FraudAlert[] = [
 ];
 
 export const kycChecks: KYCCheck[] = [
-  { id: "kyc-001", client: "Apex Capital Partners", status: "passed", documentType: "passport", submittedAt: "2026-01-15T10:00:00Z", verifiedAt: "2026-01-16T14:30:00Z", score: 96 },
-  { id: "kyc-002", client: "Meridian Trust", status: "passed", documentType: "national_id", submittedAt: "2026-02-22T09:00:00Z", verifiedAt: "2026-02-23T11:15:00Z", score: 88 },
-  { id: "kyc-003", client: "Phoenix Ventures", status: "pending", documentType: "passport", submittedAt: "2026-06-08T15:00:00Z", score: 42, notes: "Document image quality insufficient. Requesting resubmission." },
-  { id: "kyc-004", client: "Greenfield Advisors", status: "passed", documentType: "drivers_license", submittedAt: "2026-03-10T12:00:00Z", verifiedAt: "2026-03-11T09:45:00Z", score: 93 },
-  { id: "kyc-005", client: "Phoenix Ventures", status: "failed", documentType: "utility_bill", submittedAt: "2026-06-08T16:30:00Z", score: 18, notes: "Address verification failed. Document appears altered." },
-  { id: "kyc-006", client: "Apex Capital Partners", status: "expired", documentType: "passport", submittedAt: "2025-06-01T08:00:00Z", verifiedAt: "2025-06-02T13:00:00Z", score: 91, notes: "KYC documents expired. Renewal required within 30 days." },
+  { id: "kyc-001", client: "Apex Capital Partners", status: "passed", documentType: "passport", jurisdiction: "US", submittedAt: "2026-01-15T10:00:00Z", verifiedAt: "2026-01-16T14:30:00Z", score: 96 },
+  { id: "kyc-002", client: "Meridian Trust", status: "passed", documentType: "national_id", jurisdiction: "DE", submittedAt: "2026-02-22T09:00:00Z", verifiedAt: "2026-02-23T11:15:00Z", score: 88 },
+  { id: "kyc-003", client: "Phoenix Ventures", status: "pending", documentType: "passport", jurisdiction: "KY", submittedAt: "2026-06-08T15:00:00Z", score: 42, notes: "Document image quality insufficient. Requesting resubmission." },
+  { id: "kyc-004", client: "Greenfield Advisors", status: "passed", documentType: "drivers_license", jurisdiction: "GB", submittedAt: "2026-03-10T12:00:00Z", verifiedAt: "2026-03-11T09:45:00Z", score: 93 },
+  { id: "kyc-005", client: "Phoenix Ventures", status: "failed", documentType: "utility_bill", jurisdiction: "KY", submittedAt: "2026-06-08T16:30:00Z", score: 18, notes: "Address verification failed. Document appears altered." },
+  { id: "kyc-006", client: "Apex Capital Partners", status: "expired", documentType: "passport", jurisdiction: "US", submittedAt: "2025-06-01T08:00:00Z", verifiedAt: "2025-06-02T13:00:00Z", score: 91, notes: "KYC documents expired. Renewal required within 30 days." },
+  { id: "kyc-007", client: "Meridian Trust", status: "pending", documentType: "national_id", jurisdiction: "SG", submittedAt: "2026-06-12T03:15:00Z", score: 61, notes: "SG jurisdiction requires additional PEP/sanctions screening. Awaiting MAS-compliant certification." },
+  { id: "kyc-008", client: "Apex Capital Partners", status: "pending", documentType: "passport", jurisdiction: "AE", submittedAt: "2026-06-11T09:00:00Z", score: 55, notes: "UAE beneficial ownership disclosure incomplete. DFSA rules require ultimate beneficial owner attestation." },
+  { id: "kyc-009", client: "Greenfield Advisors", status: "passed", documentType: "utility_bill", jurisdiction: "CH", submittedAt: "2026-05-20T14:00:00Z", verifiedAt: "2026-05-22T10:30:00Z", score: 89, notes: "Swiss FINMA cross-border onboarding completed. EU GDPR data-processing addendum signed." },
 ];
 
 export const financialReports: FinancialReport[] = [
@@ -132,9 +135,9 @@ export const metrics: FintechMetrics = {
   totalAum: 113_800_000,
   totalTransactions: 15,
   flaggedTransactions: 4,
-  kycPassRate: 75,
+  kycPassRate: 44,
   averagePortfolioReturn: 14.2,
   activeFraudAlerts: 8,
   criticalAlerts: 3,
-  pendingKycChecks: 1,
+  pendingKycChecks: 3,
 };

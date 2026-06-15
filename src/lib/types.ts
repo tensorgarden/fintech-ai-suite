@@ -51,6 +51,7 @@ export interface KYCCheck {
   client: string;
   status: "passed" | "pending" | "failed" | "expired";
   documentType: "passport" | "drivers_license" | "national_id" | "utility_bill";
+  jurisdiction: string; // ISO 3166-1 alpha-2 or "international"
   submittedAt: string;
   verifiedAt?: string;
   score: number; // 0-100
