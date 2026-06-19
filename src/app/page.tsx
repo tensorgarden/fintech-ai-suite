@@ -54,6 +54,10 @@ function dotStatusFromKyc(
   return "offline";
 }
 
+function formatInterventionAction(action: string): string {
+  return action.replaceAll("_", " ");
+}
+
 export default function FintechDashboard() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -246,6 +250,19 @@ export default function FintechDashboard() {
                   <span className="font-semibold text-slate-700">Next action:</span>{" "}
                   {alert.recommendedAction}
                 </p>
+                <div className="mb-2 flex flex-wrap gap-2">
+                  <Badge variant="info" className="text-xs capitalize">
+                    {formatInterventionAction(alert.interventionAction)}
+                  </Badge>
+                  <Badge variant="warning" className="text-xs">
+                    Settle window {alert.settlementWindowSeconds}s
+                  </Badge>
+                  {alert.customerAuthorized && (
+                    <Badge variant="danger" className="text-xs">
+                      Customer-authorized
+                    </Badge>
+                  )}
+                </div>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs text-slate-400">
                     {formatDate(alert.detectedAt)}

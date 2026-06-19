@@ -90,6 +90,43 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("records real-time intervention windows for APP and mule-risk alerts", () => {
+      const validActions = new Set([
+        "pause_payment",
+        "step_up_verification",
+        "freeze_mule_route",
+        "analyst_review",
+      ]);
+
+      for (const a of fraudAlerts) {
+        expect(validActions.has(a.interventionAction)).toBe(true);
+        expect(a.settlementWindowSeconds).toBeGreaterThanOrEqual(0);
+        expect(a.settlementWindowSeconds).toBeLessThanOrEqual(86_400);
+
+        if (["high", "critical"].includes(a.severity)) {
+          expect(a.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        }
+      }
+    });
+
+    it("requires customer-authorized scam alerts to pause or verify before settlement", () => {
+      const customerAuthorizedAlerts = fraudAlerts.filter(
+        (a) => a.customerAuthorized,
+      );
+
+      expect(customerAuthorizedAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const a of customerAuthorizedAlerts) {
+        expect(["pause_payment", "step_up_verification"]).toContain(
+          a.interventionAction,
+        );
+        expect(a.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        expect(a.recommendedAction.toLowerCase()).toMatch(
+          /hold|pause|verify|authentication|outreach/,
+        );
+      }
+    });
+
     it("does not auto-escalate dismissed alert-fatigue candidates", () => {
       const dismissedAlerts = fraudAlerts.filter((a) => a.status === "dismissed");
       expect(dismissedAlerts.length).toBeGreaterThanOrEqual(1);

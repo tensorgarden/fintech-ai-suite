@@ -31,6 +31,12 @@ export interface Transaction {
   flagReason?: string;
 }
 
+export type FraudInterventionAction =
+  | "pause_payment"
+  | "step_up_verification"
+  | "freeze_mule_route"
+  | "analyst_review";
+
 export interface FraudAlert {
   id: string;
   transactionId?: string;
@@ -38,6 +44,9 @@ export interface FraudAlert {
   riskScore: number; // 0-100
   modelConfidence: number; // 0-100
   falsePositiveRisk: number; // 0-100, higher means analysts should triage before escalation
+  customerAuthorized: boolean; // APP-style scams can pass traditional auth controls
+  settlementWindowSeconds: number; // time left to pause, verify, or freeze before funds settle
+  interventionAction: FraudInterventionAction;
   title: string;
   description: string;
   recommendedAction: string;
