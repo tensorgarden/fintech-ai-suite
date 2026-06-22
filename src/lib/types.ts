@@ -37,6 +37,14 @@ export type FraudInterventionAction =
   | "freeze_mule_route"
   | "analyst_review";
 
+export type BeneficiaryRiskSignal =
+  | "new_beneficiary"
+  | "payee_name_mismatch"
+  | "high_risk_jurisdiction"
+  | "mule_network_link"
+  | "device_handoff"
+  | "session_anomaly";
+
 export interface FraudAlert {
   id: string;
   transactionId?: string;
@@ -45,6 +53,7 @@ export interface FraudAlert {
   modelConfidence: number; // 0-100
   falsePositiveRisk: number; // 0-100, higher means analysts should triage before escalation
   customerAuthorized: boolean; // APP-style scams can pass traditional auth controls
+  beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth
   settlementWindowSeconds: number; // time left to pause, verify, or freeze before funds settle
   interventionAction: FraudInterventionAction;
   title: string;

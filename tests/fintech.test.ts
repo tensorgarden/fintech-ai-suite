@@ -127,6 +127,40 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("attaches beneficiary-risk evidence to APP and mule-route interventions", () => {
+      const validSignals = new Set([
+        "new_beneficiary",
+        "payee_name_mismatch",
+        "high_risk_jurisdiction",
+        "mule_network_link",
+        "device_handoff",
+        "session_anomaly",
+      ]);
+      const appOrMuleAlerts = fraudAlerts.filter(
+        (a) => a.customerAuthorized || a.interventionAction === "freeze_mule_route",
+      );
+
+      expect(appOrMuleAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const a of fraudAlerts) {
+        for (const signal of a.beneficiaryRiskSignals) {
+          expect(validSignals.has(signal)).toBe(true);
+        }
+      }
+
+      for (const a of appOrMuleAlerts) {
+        expect(a.beneficiaryRiskSignals.length).toBeGreaterThanOrEqual(1);
+      }
+
+      expect(
+        fraudAlerts.some(
+          (a) =>
+            a.interventionAction === "freeze_mule_route" &&
+            a.beneficiaryRiskSignals.includes("mule_network_link"),
+        ),
+      ).toBe(true);
+    });
+
     it("does not auto-escalate dismissed alert-fatigue candidates", () => {
       const dismissedAlerts = fraudAlerts.filter((a) => a.status === "dismissed");
       expect(dismissedAlerts.length).toBeGreaterThanOrEqual(1);
