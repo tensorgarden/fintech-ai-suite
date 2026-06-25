@@ -37,6 +37,20 @@ export type FraudInterventionAction =
   | "freeze_mule_route"
   | "analyst_review";
 
+export type FundsMovementChannel =
+  | "ach_credit_push"
+  | "wire"
+  | "instant_payment"
+  | "card"
+  | "crypto"
+  | "securities_trade";
+
+export type CounterpartyReviewStatus =
+  | "not_required"
+  | "originator_review"
+  | "receiving_bank_review"
+  | "coordinated_review";
+
 export type BeneficiaryRiskSignal =
   | "new_beneficiary"
   | "payee_name_mismatch"
@@ -52,6 +66,8 @@ export interface FraudAlert {
   riskScore: number; // 0-100
   modelConfidence: number; // 0-100
   falsePositiveRisk: number; // 0-100, higher means analysts should triage before escalation
+  fundsMovementChannel: FundsMovementChannel; // distinguishes ACH/instant credit-push risk from trades
+  counterpartyReviewStatus: CounterpartyReviewStatus; // captures sending/receiving institution review needs
   customerAuthorized: boolean; // APP-style scams can pass traditional auth controls
   beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth
   settlementWindowSeconds: number; // time left to pause, verify, or freeze before funds settle

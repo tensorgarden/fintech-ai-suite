@@ -127,6 +127,28 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("routes ACH and instant-payment APP risk through counterparty review", () => {
+      const realTimeCreditPushAlerts = fraudAlerts.filter(
+        (a) =>
+          a.customerAuthorized &&
+          ["ach_credit_push", "instant_payment"].includes(
+            a.fundsMovementChannel,
+          ),
+      );
+
+      expect(realTimeCreditPushAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const a of realTimeCreditPushAlerts) {
+        expect(["receiving_bank_review", "coordinated_review"]).toContain(
+          a.counterpartyReviewStatus,
+        );
+        expect(a.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        expect(a.recommendedAction.toLowerCase()).toMatch(
+          /hold|pause|verify|authentication|beneficiary|step-up/,
+        );
+      }
+    });
+
     it("attaches beneficiary-risk evidence to APP and mule-route interventions", () => {
       const validSignals = new Set([
         "new_beneficiary",
