@@ -127,6 +127,37 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("queues customer outreach for authorized payment scams before settlement", () => {
+      const validOutreachStates = new Set([
+        "not_required",
+        "queued",
+        "challenge_sent",
+        "confirmed_safe",
+        "unable_to_reach",
+      ]);
+      const authorizedPaymentAlerts = fraudAlerts.filter(
+        (a) =>
+          a.customerAuthorized &&
+          ["ach_credit_push", "wire", "instant_payment"].includes(
+            a.fundsMovementChannel,
+          ),
+      );
+
+      expect(authorizedPaymentAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const a of fraudAlerts) {
+        expect(validOutreachStates.has(a.customerOutreachStatus)).toBe(true);
+      }
+
+      for (const a of authorizedPaymentAlerts) {
+        expect(a.customerOutreachStatus).not.toBe("not_required");
+        expect(["queued", "challenge_sent", "unable_to_reach"]).toContain(
+          a.customerOutreachStatus,
+        );
+        expect(a.settlementWindowSeconds).toBeLessThanOrEqual(300);
+      }
+    });
+
     it("routes ACH and instant-payment APP risk through counterparty review", () => {
       const realTimeCreditPushAlerts = fraudAlerts.filter(
         (a) =>

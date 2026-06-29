@@ -51,6 +51,13 @@ export type CounterpartyReviewStatus =
   | "receiving_bank_review"
   | "coordinated_review";
 
+export type CustomerOutreachStatus =
+  | "not_required"
+  | "queued"
+  | "challenge_sent"
+  | "confirmed_safe"
+  | "unable_to_reach";
+
 export type BeneficiaryRiskSignal =
   | "new_beneficiary"
   | "payee_name_mismatch"
@@ -69,6 +76,7 @@ export interface FraudAlert {
   fundsMovementChannel: FundsMovementChannel; // distinguishes ACH/instant credit-push risk from trades
   counterpartyReviewStatus: CounterpartyReviewStatus; // captures sending/receiving institution review needs
   customerAuthorized: boolean; // APP-style scams can pass traditional auth controls
+  customerOutreachStatus: CustomerOutreachStatus; // direct customer warning/challenge state before release
   beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth
   settlementWindowSeconds: number; // time left to pause, verify, or freeze before funds settle
   interventionAction: FraudInterventionAction;

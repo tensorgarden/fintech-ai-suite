@@ -268,6 +268,11 @@ export default function FintechDashboard() {
                       Customer-authorized
                     </Badge>
                   )}
+                  {alert.customerOutreachStatus !== "not_required" && (
+                    <Badge variant="warning" className="text-xs capitalize">
+                      Outreach {formatInterventionAction(alert.customerOutreachStatus)}
+                    </Badge>
+                  )}
                 </div>
                 {alert.beneficiaryRiskSignals.length > 0 && (
                   <p className="mb-2 text-xs text-slate-500">
