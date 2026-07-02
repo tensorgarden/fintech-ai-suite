@@ -260,6 +260,16 @@ export default function FintechDashboard() {
                   <Badge variant="info" className="text-xs capitalize">
                     {formatInterventionAction(alert.counterpartyReviewStatus)}
                   </Badge>
+                  <Badge
+                    variant={
+                      alert.counterpartyIntelligenceStatus === "clear"
+                        ? "default"
+                        : "warning"
+                    }
+                    className="text-xs capitalize"
+                  >
+                    Intel {formatInterventionAction(alert.counterpartyIntelligenceStatus)}
+                  </Badge>
                   <Badge variant="warning" className="text-xs">
                     Settle window {alert.settlementWindowSeconds}s
                   </Badge>

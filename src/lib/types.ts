@@ -51,6 +51,12 @@ export type CounterpartyReviewStatus =
   | "receiving_bank_review"
   | "coordinated_review";
 
+export type CounterpartyIntelligenceStatus =
+  | "clear"
+  | "manual_verification"
+  | "scam_watchlist_hit"
+  | "mule_cluster_match";
+
 export type CustomerOutreachStatus =
   | "not_required"
   | "queued"
@@ -75,6 +81,7 @@ export interface FraudAlert {
   falsePositiveRisk: number; // 0-100, higher means analysts should triage before escalation
   fundsMovementChannel: FundsMovementChannel; // distinguishes ACH/instant credit-push risk from trades
   counterpartyReviewStatus: CounterpartyReviewStatus; // captures sending/receiving institution review needs
+  counterpartyIntelligenceStatus: CounterpartyIntelligenceStatus; // scam-account watchlist or mule-network graph hit
   customerAuthorized: boolean; // APP-style scams can pass traditional auth controls
   customerOutreachStatus: CustomerOutreachStatus; // direct customer warning/challenge state before release
   beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth

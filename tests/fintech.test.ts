@@ -214,6 +214,45 @@ describe("Fintech AI Suite", () => {
       ).toBe(true);
     });
 
+    it("surfaces counterparty intelligence for scam-linked or mule account risk", () => {
+      const validStatuses = new Set([
+        "clear",
+        "manual_verification",
+        "scam_watchlist_hit",
+        "mule_cluster_match",
+      ]);
+      const highRiskPaymentAlerts = fraudAlerts.filter(
+        (a) =>
+          ["high", "critical"].includes(a.severity) &&
+          ["ach_credit_push", "wire", "instant_payment"].includes(
+            a.fundsMovementChannel,
+          ),
+      );
+      const muleRouteAlerts = fraudAlerts.filter((a) =>
+        a.beneficiaryRiskSignals.includes("mule_network_link"),
+      );
+
+      expect(highRiskPaymentAlerts.length).toBeGreaterThanOrEqual(1);
+      expect(muleRouteAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const a of fraudAlerts) {
+        expect(validStatuses.has(a.counterpartyIntelligenceStatus)).toBe(true);
+      }
+
+      for (const a of highRiskPaymentAlerts) {
+        expect(a.counterpartyIntelligenceStatus).not.toBe("clear");
+      }
+
+      for (const a of muleRouteAlerts) {
+        expect(["mule_cluster_match", "scam_watchlist_hit"]).toContain(
+          a.counterpartyIntelligenceStatus,
+        );
+        expect(a.recommendedAction.toLowerCase()).toMatch(
+          /mule|freeze|receiving bank|counterparty|beneficiary/,
+        );
+      }
+    });
+
     it("does not auto-escalate dismissed alert-fatigue candidates", () => {
       const dismissedAlerts = fraudAlerts.filter((a) => a.status === "dismissed");
       expect(dismissedAlerts.length).toBeGreaterThanOrEqual(1);
