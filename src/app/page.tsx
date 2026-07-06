@@ -294,6 +294,16 @@ export default function FintechDashboard() {
                       .join(", ")}
                   </p>
                 )}
+                {alert.accountHandoverSignals.length > 0 && (
+                  <p className="mb-2 text-xs text-slate-500">
+                    <span className="font-semibold text-slate-600">
+                      Account handover cues:
+                    </span>{" "}
+                    {alert.accountHandoverSignals
+                      .map(formatInterventionAction)
+                      .join(", ")}
+                  </p>
+                )}
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs text-slate-400">
                     {formatDate(alert.detectedAt)}

@@ -214,6 +214,39 @@ describe("Fintech AI Suite", () => {
       ).toBe(true);
     });
 
+    it("flags post-onboarding account handover cues before funds move", () => {
+      const validHandoverSignals = new Set([
+        "new_device_after_kyc",
+        "credential_reset_before_transfer",
+        "session_cookie_replay",
+        "behavioral_biometrics_shift",
+        "sim_swap_indicator",
+      ]);
+      const timeCriticalAlerts = fraudAlerts.filter(
+        (a) =>
+          ["high", "critical"].includes(a.severity) &&
+          ["ach_credit_push", "wire", "instant_payment", "card"].includes(
+            a.fundsMovementChannel,
+          ),
+      );
+
+      expect(timeCriticalAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const a of fraudAlerts) {
+        for (const signal of a.accountHandoverSignals) {
+          expect(validHandoverSignals.has(signal)).toBe(true);
+        }
+      }
+
+      for (const a of timeCriticalAlerts) {
+        expect(a.accountHandoverSignals.length).toBeGreaterThanOrEqual(1);
+        expect(a.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        expect(a.recommendedAction.toLowerCase()).toMatch(
+          /hold|pause|verify|challenge|freeze|review/,
+        );
+      }
+    });
+
     it("surfaces counterparty intelligence for scam-linked or mule account risk", () => {
       const validStatuses = new Set([
         "clear",

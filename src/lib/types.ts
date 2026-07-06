@@ -72,6 +72,13 @@ export type BeneficiaryRiskSignal =
   | "device_handoff"
   | "session_anomaly";
 
+export type AccountHandoverSignal =
+  | "new_device_after_kyc"
+  | "credential_reset_before_transfer"
+  | "session_cookie_replay"
+  | "behavioral_biometrics_shift"
+  | "sim_swap_indicator";
+
 export interface FraudAlert {
   id: string;
   transactionId?: string;
@@ -85,6 +92,7 @@ export interface FraudAlert {
   customerAuthorized: boolean; // APP-style scams can pass traditional auth controls
   customerOutreachStatus: CustomerOutreachStatus; // direct customer warning/challenge state before release
   beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth
+  accountHandoverSignals: AccountHandoverSignal[]; // post-onboarding takeover cues before funds move
   settlementWindowSeconds: number; // time left to pause, verify, or freeze before funds settle
   interventionAction: FraudInterventionAction;
   title: string;
