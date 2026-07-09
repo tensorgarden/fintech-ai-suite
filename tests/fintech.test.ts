@@ -286,6 +286,45 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("detects fragmented low-value payment scams before static thresholds", () => {
+      const fragmentedPaymentAlerts = fraudAlerts.filter((a) =>
+        /sub-\$10K|structured to avoid reporting|multiple small|fragment/i.test(
+          `${a.title} ${a.description}`,
+        ),
+      );
+
+      expect(fragmentedPaymentAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const a of fragmentedPaymentAlerts) {
+        expect(["ach_credit_push", "wire", "instant_payment"]).toContain(
+          a.fundsMovementChannel,
+        );
+        expect(["receiving_bank_review", "coordinated_review"]).toContain(
+          a.counterpartyReviewStatus,
+        );
+        expect(a.counterpartyIntelligenceStatus).not.toBe("clear");
+        expect(a.settlementWindowSeconds).toBeLessThanOrEqual(300);
+      }
+    });
+
+    it("requires behavior-led AML action for mule convergence patterns", () => {
+      const muleConvergenceAlerts = fraudAlerts.filter(
+        (a) =>
+          a.description.toLowerCase().includes("mule-account") ||
+          a.beneficiaryRiskSignals.includes("mule_network_link"),
+      );
+
+      expect(muleConvergenceAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const a of muleConvergenceAlerts) {
+        expect(a.beneficiaryRiskSignals).toContain("mule_network_link");
+        expect(a.interventionAction).toBe("freeze_mule_route");
+        expect(a.recommendedAction.toLowerCase()).toMatch(
+          /aggregate|linked accounts|freeze|receiving bank|settlement/,
+        );
+      }
+    });
+
     it("does not auto-escalate dismissed alert-fatigue candidates", () => {
       const dismissedAlerts = fraudAlerts.filter((a) => a.status === "dismissed");
       expect(dismissedAlerts.length).toBeGreaterThanOrEqual(1);
