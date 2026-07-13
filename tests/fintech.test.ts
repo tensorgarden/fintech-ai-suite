@@ -158,6 +158,53 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("retains cross-sector origin signals for customer-authorized payment scams", () => {
+      const validOriginChannels = new Set([
+        "online_platform",
+        "telecom",
+        "email",
+        "in_person",
+        "unknown",
+        "not_applicable",
+      ]);
+      const authorizedPaymentAlerts = fraudAlerts.filter(
+        (a) =>
+          a.customerAuthorized &&
+          ["ach_credit_push", "wire", "instant_payment"].includes(
+            a.fundsMovementChannel,
+          ),
+      );
+
+      expect(authorizedPaymentAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const a of fraudAlerts) {
+        expect(validOriginChannels.has(a.scamOriginChannel)).toBe(true);
+      }
+
+      for (const a of authorizedPaymentAlerts) {
+        expect(a.scamOriginChannel).not.toBe("not_applicable");
+
+        if (a.scamOriginChannel === "online_platform") {
+          expect(a.description.toLowerCase()).toMatch(/online|platform|social/);
+        }
+        if (a.scamOriginChannel === "telecom") {
+          expect(a.description.toLowerCase()).toMatch(/call|phone|telecom/);
+        }
+        if (a.scamOriginChannel === "email") {
+          expect(a.description.toLowerCase()).toMatch(/email|supplier/);
+        }
+      }
+
+      expect(
+        authorizedPaymentAlerts.some(
+          (a) => a.scamOriginChannel === "online_platform",
+        ),
+      ).toBe(true);
+      expect(
+        authorizedPaymentAlerts.some((a) => a.scamOriginChannel === "telecom"),
+      ).toBe(true);
+    });
+
     it("routes ACH and instant-payment APP risk through counterparty review", () => {
       const realTimeCreditPushAlerts = fraudAlerts.filter(
         (a) =>

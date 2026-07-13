@@ -278,6 +278,11 @@ export default function FintechDashboard() {
                       Customer-authorized
                     </Badge>
                   )}
+                  {alert.scamOriginChannel !== "not_applicable" && (
+                    <Badge variant="warning" className="text-xs capitalize">
+                      Origin {formatInterventionAction(alert.scamOriginChannel)}
+                    </Badge>
+                  )}
                   {alert.customerOutreachStatus !== "not_required" && (
                     <Badge variant="warning" className="text-xs capitalize">
                       Outreach {formatInterventionAction(alert.customerOutreachStatus)}

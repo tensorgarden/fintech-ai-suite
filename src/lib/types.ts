@@ -64,6 +64,14 @@ export type CustomerOutreachStatus =
   | "confirmed_safe"
   | "unable_to_reach";
 
+export type ScamOriginChannel =
+  | "online_platform"
+  | "telecom"
+  | "email"
+  | "in_person"
+  | "unknown"
+  | "not_applicable";
+
 export type BeneficiaryRiskSignal =
   | "new_beneficiary"
   | "payee_name_mismatch"
@@ -90,6 +98,7 @@ export interface FraudAlert {
   counterpartyReviewStatus: CounterpartyReviewStatus; // captures sending/receiving institution review needs
   counterpartyIntelligenceStatus: CounterpartyIntelligenceStatus; // scam-account watchlist or mule-network graph hit
   customerAuthorized: boolean; // APP-style scams can pass traditional auth controls
+  scamOriginChannel: ScamOriginChannel; // cross-sector source of the deception or fraud exposure
   customerOutreachStatus: CustomerOutreachStatus; // direct customer warning/challenge state before release
   beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth
   accountHandoverSignals: AccountHandoverSignal[]; // post-onboarding takeover cues before funds move
