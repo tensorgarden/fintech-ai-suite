@@ -87,6 +87,12 @@ export type AccountHandoverSignal =
   | "behavioral_biometrics_shift"
   | "sim_swap_indicator";
 
+export type AiImpersonationSignal =
+  | "voice_clone_suspected"
+  | "deepfake_injection_suspected"
+  | "synthetic_document_artifact"
+  | "authority_impersonation";
+
 export interface FraudAlert {
   id: string;
   transactionId?: string;
@@ -102,6 +108,7 @@ export interface FraudAlert {
   customerOutreachStatus: CustomerOutreachStatus; // direct customer warning/challenge state before release
   beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth
   accountHandoverSignals: AccountHandoverSignal[]; // post-onboarding takeover cues before funds move
+  aiImpersonationSignals: AiImpersonationSignal[]; // deepfake or synthetic-media evidence requiring independent verification
   settlementWindowSeconds: number; // time left to pause, verify, or freeze before funds settle
   interventionAction: FraudInterventionAction;
   title: string;

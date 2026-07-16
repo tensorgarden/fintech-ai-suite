@@ -372,6 +372,53 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("keeps AI impersonation evidence within the supported signal taxonomy", () => {
+      const validSignals = new Set([
+        "voice_clone_suspected",
+        "deepfake_injection_suspected",
+        "synthetic_document_artifact",
+        "authority_impersonation",
+      ]);
+
+      for (const alert of fraudAlerts) {
+        for (const signal of alert.aiImpersonationSignals) {
+          expect(validSignals.has(signal)).toBe(true);
+        }
+      }
+    });
+
+    it("requires independent verification before acting on AI impersonation cues", () => {
+      const aiImpersonationAlerts = fraudAlerts.filter(
+        (alert) => alert.aiImpersonationSignals.length > 0,
+      );
+
+      expect(aiImpersonationAlerts.length).toBeGreaterThanOrEqual(2);
+
+      for (const alert of aiImpersonationAlerts) {
+        expect(["pause_payment", "step_up_verification"]).toContain(
+          alert.interventionAction,
+        );
+        expect(alert.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        expect(alert.description.toLowerCase()).toMatch(
+          /deepfake|voice-clone|synthetic|impersonat/,
+        );
+        expect(alert.recommendedAction.toLowerCase()).toMatch(
+          /liveness|callback|verify|verification|challenge|pause|freeze/,
+        );
+      }
+
+      expect(
+        aiImpersonationAlerts.some((alert) =>
+          alert.aiImpersonationSignals.includes("voice_clone_suspected"),
+        ),
+      ).toBe(true);
+      expect(
+        aiImpersonationAlerts.some((alert) =>
+          alert.aiImpersonationSignals.includes("deepfake_injection_suspected"),
+        ),
+      ).toBe(true);
+    });
+
     it("does not auto-escalate dismissed alert-fatigue candidates", () => {
       const dismissedAlerts = fraudAlerts.filter((a) => a.status === "dismissed");
       expect(dismissedAlerts.length).toBeGreaterThanOrEqual(1);

@@ -309,6 +309,16 @@ export default function FintechDashboard() {
                       .join(", ")}
                   </p>
                 )}
+                {alert.aiImpersonationSignals.length > 0 && (
+                  <p className="mb-2 text-xs text-red-600">
+                    <span className="font-semibold text-red-700">
+                      AI impersonation cues:
+                    </span>{" "}
+                    {alert.aiImpersonationSignals
+                      .map(formatInterventionAction)
+                      .join(", ")}
+                  </p>
+                )}
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-xs text-slate-400">
                     {formatDate(alert.detectedAt)}
