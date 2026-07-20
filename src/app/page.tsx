@@ -288,6 +288,12 @@ export default function FintechDashboard() {
                       Outreach {formatInterventionAction(alert.customerOutreachStatus)}
                     </Badge>
                   )}
+                  {alert.customerContactIntegrityStatus !==
+                    "trusted_channels_intact" && (
+                    <Badge variant="danger" className="text-xs capitalize">
+                      Contact {formatInterventionAction(alert.customerContactIntegrityStatus)}
+                    </Badge>
+                  )}
                 </div>
                 {alert.beneficiaryRiskSignals.length > 0 && (
                   <p className="mb-2 text-xs text-slate-500">

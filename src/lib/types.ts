@@ -64,6 +64,12 @@ export type CustomerOutreachStatus =
   | "confirmed_safe"
   | "unable_to_reach";
 
+export type CustomerContactIntegrityStatus =
+  | "trusted_channels_intact"
+  | "recent_contact_change"
+  | "outbound_channel_blocked"
+  | "independent_contact_required";
+
 export type ScamOriginChannel =
   | "online_platform"
   | "telecom"
@@ -106,6 +112,7 @@ export interface FraudAlert {
   customerAuthorized: boolean; // APP-style scams can pass traditional auth controls
   scamOriginChannel: ScamOriginChannel; // cross-sector source of the deception or fraud exposure
   customerOutreachStatus: CustomerOutreachStatus; // direct customer warning/challenge state before release
+  customerContactIntegrityStatus: CustomerContactIntegrityStatus; // prevents verification through contact details changed during takeover
   beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth
   accountHandoverSignals: AccountHandoverSignal[]; // post-onboarding takeover cues before funds move
   aiImpersonationSignals: AiImpersonationSignal[]; // deepfake or synthetic-media evidence requiring independent verification

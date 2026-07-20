@@ -294,6 +294,43 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("records customer contact integrity for every fraud alert", () => {
+      const validStatuses = new Set([
+        "trusted_channels_intact",
+        "recent_contact_change",
+        "outbound_channel_blocked",
+        "independent_contact_required",
+      ]);
+
+      for (const alert of fraudAlerts) {
+        expect(validStatuses.has(alert.customerContactIntegrityStatus)).toBe(true);
+      }
+    });
+
+    it("avoids takeover-changed contact channels during intervention", () => {
+      const contactCompromiseSignals = new Set([
+        "credential_reset_before_transfer",
+        "session_cookie_replay",
+        "sim_swap_indicator",
+      ]);
+      const contactRiskAlerts = fraudAlerts.filter((alert) =>
+        alert.accountHandoverSignals.some((signal) =>
+          contactCompromiseSignals.has(signal),
+        ),
+      );
+
+      expect(contactRiskAlerts.length).toBeGreaterThanOrEqual(3);
+
+      for (const alert of contactRiskAlerts) {
+        expect(alert.customerContactIntegrityStatus).not.toBe(
+          "trusted_channels_intact",
+        );
+        expect(alert.recommendedAction.toLowerCase()).toMatch(
+          /trusted|independent|pre-change|callback|liveness/,
+        );
+      }
+    });
+
     it("surfaces counterparty intelligence for scam-linked or mule account risk", () => {
       const validStatuses = new Set([
         "clear",
