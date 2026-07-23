@@ -294,6 +294,20 @@ export default function FintechDashboard() {
                       Contact {formatInterventionAction(alert.customerContactIntegrityStatus)}
                     </Badge>
                   )}
+                  {alert.paymentInstructionVerificationStatus !== "not_required" && (
+                    <Badge
+                      variant={
+                        ["change_unverified", "bank_account_mismatch"].includes(
+                          alert.paymentInstructionVerificationStatus,
+                        )
+                          ? "danger"
+                          : "info"
+                      }
+                      className="text-xs capitalize"
+                    >
+                      Instructions {formatInterventionAction(alert.paymentInstructionVerificationStatus)}
+                    </Badge>
+                  )}
                 </div>
                 {alert.beneficiaryRiskSignals.length > 0 && (
                   <p className="mb-2 text-xs text-slate-500">

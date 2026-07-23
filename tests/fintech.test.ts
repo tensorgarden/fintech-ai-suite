@@ -331,6 +331,43 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("keeps payment-instruction verification within the supported taxonomy", () => {
+      const validStatuses = new Set([
+        "not_required",
+        "existing_instructions_match",
+        "change_unverified",
+        "verified_via_independent_channel",
+        "bank_account_mismatch",
+      ]);
+
+      for (const alert of fraudAlerts) {
+        expect(
+          validStatuses.has(alert.paymentInstructionVerificationStatus),
+        ).toBe(true);
+      }
+    });
+
+    it("holds emailed supplier-account changes for independent verification", () => {
+      const instructionChangeAlerts = fraudAlerts.filter((alert) =>
+        /supplier-account change|changed banking instructions|payment instruction/i.test(
+          `${alert.title} ${alert.description}`,
+        ),
+      );
+
+      expect(instructionChangeAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const alert of instructionChangeAlerts) {
+        expect(["change_unverified", "bank_account_mismatch"]).toContain(
+          alert.paymentInstructionVerificationStatus,
+        );
+        expect(alert.interventionAction).toBe("pause_payment");
+        expect(alert.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        expect(alert.recommendedAction.toLowerCase()).toMatch(
+          /independent|pre-existing|vendor-master|callback|out-of-band/,
+        );
+      }
+    });
+
     it("surfaces counterparty intelligence for scam-linked or mule account risk", () => {
       const validStatuses = new Set([
         "clear",

@@ -70,6 +70,13 @@ export type CustomerContactIntegrityStatus =
   | "outbound_channel_blocked"
   | "independent_contact_required";
 
+export type PaymentInstructionVerificationStatus =
+  | "not_required"
+  | "existing_instructions_match"
+  | "change_unverified"
+  | "verified_via_independent_channel"
+  | "bank_account_mismatch";
+
 export type ScamOriginChannel =
   | "online_platform"
   | "telecom"
@@ -113,6 +120,7 @@ export interface FraudAlert {
   scamOriginChannel: ScamOriginChannel; // cross-sector source of the deception or fraud exposure
   customerOutreachStatus: CustomerOutreachStatus; // direct customer warning/challenge state before release
   customerContactIntegrityStatus: CustomerContactIntegrityStatus; // prevents verification through contact details changed during takeover
+  paymentInstructionVerificationStatus: PaymentInstructionVerificationStatus; // requires independent checks for changed payee instructions
   beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth
   accountHandoverSignals: AccountHandoverSignal[]; // post-onboarding takeover cues before funds move
   aiImpersonationSignals: AiImpersonationSignal[]; // deepfake or synthetic-media evidence requiring independent verification
