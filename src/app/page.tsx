@@ -294,6 +294,22 @@ export default function FintechDashboard() {
                       Contact {formatInterventionAction(alert.customerContactIntegrityStatus)}
                     </Badge>
                   )}
+                  {alert.payeeNameCheckStatus !== "not_required" && (
+                    <Badge
+                      variant={
+                        ["close_match", "no_match"].includes(
+                          alert.payeeNameCheckStatus,
+                        )
+                          ? "danger"
+                          : alert.payeeNameCheckStatus === "not_available"
+                            ? "warning"
+                            : "info"
+                      }
+                      className="text-xs capitalize"
+                    >
+                      Payee check {formatInterventionAction(alert.payeeNameCheckStatus)}
+                    </Badge>
+                  )}
                   {alert.paymentInstructionVerificationStatus !== "not_required" && (
                     <Badge
                       variant={

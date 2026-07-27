@@ -331,6 +331,43 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("keeps Confirmation of Payee outcomes within the supported taxonomy", () => {
+      const validStatuses = new Set([
+        "not_required",
+        "not_available",
+        "match",
+        "close_match",
+        "no_match",
+      ]);
+
+      for (const alert of fraudAlerts) {
+        expect(validStatuses.has(alert.payeeNameCheckStatus)).toBe(true);
+      }
+    });
+
+    it("holds risky payee-name results before payment release", () => {
+      const riskyPayeeAlerts = fraudAlerts.filter(
+        (alert) =>
+          (["ach_credit_push", "wire", "instant_payment"].includes(
+            alert.fundsMovementChannel,
+          ) &&
+            alert.beneficiaryRiskSignals.includes("payee_name_mismatch")) ||
+          ["change_unverified", "bank_account_mismatch"].includes(
+            alert.paymentInstructionVerificationStatus,
+          ),
+      );
+
+      expect(riskyPayeeAlerts.length).toBeGreaterThanOrEqual(2);
+
+      for (const alert of riskyPayeeAlerts) {
+        expect(["close_match", "no_match"]).toContain(
+          alert.payeeNameCheckStatus,
+        );
+        expect(alert.interventionAction).toBe("pause_payment");
+        expect(alert.settlementWindowSeconds).toBeLessThanOrEqual(300);
+      }
+    });
+
     it("keeps payment-instruction verification within the supported taxonomy", () => {
       const validStatuses = new Set([
         "not_required",

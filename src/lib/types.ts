@@ -77,6 +77,13 @@ export type PaymentInstructionVerificationStatus =
   | "verified_via_independent_channel"
   | "bank_account_mismatch";
 
+export type PayeeNameCheckStatus =
+  | "not_required"
+  | "not_available"
+  | "match"
+  | "close_match"
+  | "no_match";
+
 export type ScamOriginChannel =
   | "online_platform"
   | "telecom"
@@ -121,6 +128,7 @@ export interface FraudAlert {
   customerOutreachStatus: CustomerOutreachStatus; // direct customer warning/challenge state before release
   customerContactIntegrityStatus: CustomerContactIntegrityStatus; // prevents verification through contact details changed during takeover
   paymentInstructionVerificationStatus: PaymentInstructionVerificationStatus; // requires independent checks for changed payee instructions
+  payeeNameCheckStatus: PayeeNameCheckStatus; // Confirmation of Payee result before payment release
   beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth
   accountHandoverSignals: AccountHandoverSignal[]; // post-onboarding takeover cues before funds move
   aiImpersonationSignals: AiImpersonationSignal[]; // deepfake or synthetic-media evidence requiring independent verification
