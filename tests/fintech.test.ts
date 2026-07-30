@@ -331,6 +331,56 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("keeps payment-delay reviews within the supported taxonomy", () => {
+      const validStatuses = new Set([
+        "not_required",
+        "reasonable_suspicion_recorded",
+        "customer_notice_due",
+        "customer_notified",
+      ]);
+
+      for (const alert of fraudAlerts) {
+        expect(validStatuses.has(alert.paymentDelayReviewStatus)).toBe(true);
+      }
+    });
+
+    it("records reasonable suspicion before holding payment alerts", () => {
+      const heldPaymentAlerts = fraudAlerts.filter(
+        (alert) =>
+          ["ach_credit_push", "wire", "instant_payment"].includes(
+            alert.fundsMovementChannel,
+          ) &&
+          ["pause_payment", "freeze_mule_route"].includes(
+            alert.interventionAction,
+          ),
+      );
+
+      expect(heldPaymentAlerts.length).toBeGreaterThanOrEqual(3);
+
+      for (const alert of heldPaymentAlerts) {
+        expect(alert.paymentDelayReviewStatus).not.toBe("not_required");
+        expect(alert.settlementWindowSeconds).toBeLessThanOrEqual(300);
+      }
+    });
+
+    it("keeps delayed customer-authorized payments on a notice path", () => {
+      const delayedAuthorizedPayments = fraudAlerts.filter(
+        (alert) =>
+          alert.customerAuthorized &&
+          ["ach_credit_push", "wire", "instant_payment"].includes(
+            alert.fundsMovementChannel,
+          ),
+      );
+
+      expect(delayedAuthorizedPayments.length).toBeGreaterThanOrEqual(3);
+
+      for (const alert of delayedAuthorizedPayments) {
+        expect(["customer_notice_due", "customer_notified"]).toContain(
+          alert.paymentDelayReviewStatus,
+        );
+      }
+    });
+
     it("keeps Confirmation of Payee outcomes within the supported taxonomy", () => {
       const validStatuses = new Set([
         "not_required",

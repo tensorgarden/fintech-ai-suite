@@ -77,6 +77,12 @@ export type PaymentInstructionVerificationStatus =
   | "verified_via_independent_channel"
   | "bank_account_mismatch";
 
+export type PaymentDelayReviewStatus =
+  | "not_required"
+  | "reasonable_suspicion_recorded"
+  | "customer_notice_due"
+  | "customer_notified";
+
 export type PayeeNameCheckStatus =
   | "not_required"
   | "not_available"
@@ -128,6 +134,7 @@ export interface FraudAlert {
   customerOutreachStatus: CustomerOutreachStatus; // direct customer warning/challenge state before release
   customerContactIntegrityStatus: CustomerContactIntegrityStatus; // prevents verification through contact details changed during takeover
   paymentInstructionVerificationStatus: PaymentInstructionVerificationStatus; // requires independent checks for changed payee instructions
+  paymentDelayReviewStatus: PaymentDelayReviewStatus; // records the reasonable-suspicion and customer-notice path for delayed payments
   payeeNameCheckStatus: PayeeNameCheckStatus; // Confirmation of Payee result before payment release
   beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth
   accountHandoverSignals: AccountHandoverSignal[]; // post-onboarding takeover cues before funds move
