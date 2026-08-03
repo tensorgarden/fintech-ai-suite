@@ -294,6 +294,18 @@ export default function FintechDashboard() {
                       Contact {formatInterventionAction(alert.customerContactIntegrityStatus)}
                     </Badge>
                   )}
+                  {alert.paymentDelayReviewStatus !== "not_required" && (
+                    <Badge
+                      variant={
+                        alert.paymentDelayReviewStatus === "reasonable_suspicion_recorded"
+                          ? "warning"
+                          : "info"
+                      }
+                      className="text-xs capitalize"
+                    >
+                      Delay review {formatInterventionAction(alert.paymentDelayReviewStatus)}
+                    </Badge>
+                  )}
                   {alert.payeeNameCheckStatus !== "not_required" && (
                     <Badge
                       variant={
