@@ -90,6 +90,12 @@ export type PayeeNameCheckStatus =
   | "close_match"
   | "no_match";
 
+export type AppReimbursementStatus =
+  | "not_applicable"
+  | "assessment_due"
+  | "claim_under_review"
+  | "reimbursed_shared_liability";
+
 export type ScamOriginChannel =
   | "online_platform"
   | "telecom"
@@ -136,6 +142,7 @@ export interface FraudAlert {
   paymentInstructionVerificationStatus: PaymentInstructionVerificationStatus; // requires independent checks for changed payee instructions
   paymentDelayReviewStatus: PaymentDelayReviewStatus; // records the reasonable-suspicion and customer-notice path for delayed payments
   payeeNameCheckStatus: PayeeNameCheckStatus; // Confirmation of Payee result before payment release
+  appReimbursementStatus: AppReimbursementStatus; // mandatory APP scam reimbursement claim and shared-liability state
   beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth
   accountHandoverSignals: AccountHandoverSignal[]; // post-onboarding takeover cues before funds move
   aiImpersonationSignals: AiImpersonationSignal[]; // deepfake or synthetic-media evidence requiring independent verification

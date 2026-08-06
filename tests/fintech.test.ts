@@ -418,6 +418,61 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("keeps APP reimbursement status within the supported taxonomy", () => {
+      const validStatuses = new Set([
+        "not_applicable",
+        "assessment_due",
+        "claim_under_review",
+        "reimbursed_shared_liability",
+      ]);
+
+      for (const alert of fraudAlerts) {
+        expect(validStatuses.has(alert.appReimbursementStatus)).toBe(true);
+      }
+    });
+
+    it("tracks reimbursement claims for customer-authorized payment scams", () => {
+      const paymentRails = ["ach_credit_push", "wire", "instant_payment"];
+      const appScamAlerts = fraudAlerts.filter(
+        (alert) =>
+          alert.customerAuthorized &&
+          paymentRails.includes(alert.fundsMovementChannel),
+      );
+      const nonAppAlerts = fraudAlerts.filter(
+        (alert) =>
+          !(
+            alert.customerAuthorized &&
+            paymentRails.includes(alert.fundsMovementChannel)
+          ),
+      );
+
+      expect(appScamAlerts.length).toBeGreaterThanOrEqual(3);
+
+      for (const alert of appScamAlerts) {
+        expect(alert.appReimbursementStatus).not.toBe("not_applicable");
+      }
+
+      for (const alert of nonAppAlerts) {
+        expect(alert.appReimbursementStatus).toBe("not_applicable");
+      }
+    });
+
+    it("anchors active reimbursement claims in claim evidence", () => {
+      const activeClaimAlerts = fraudAlerts.filter((alert) =>
+        ["claim_under_review", "reimbursed_shared_liability"].includes(
+          alert.appReimbursementStatus,
+        ),
+      );
+
+      expect(activeClaimAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const alert of activeClaimAlerts) {
+        expect(
+          `${alert.title} ${alert.description} ${alert.recommendedAction}`.toLowerCase(),
+        ).toMatch(/\bclaim\b|reimburs|liabilit/);
+      }
+    });
+
     it("keeps payment-instruction verification within the supported taxonomy", () => {
       const validStatuses = new Set([
         "not_required",

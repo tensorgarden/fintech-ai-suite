@@ -336,6 +336,19 @@ export default function FintechDashboard() {
                       Instructions {formatInterventionAction(alert.paymentInstructionVerificationStatus)}
                     </Badge>
                   )}
+                  {alert.appReimbursementStatus !== "not_applicable" && (
+                    <Badge
+                      variant={
+                        alert.appReimbursementStatus ===
+                        "reimbursed_shared_liability"
+                          ? "info"
+                          : "warning"
+                      }
+                      className="text-xs capitalize"
+                    >
+                      Reimbursement {formatInterventionAction(alert.appReimbursementStatus)}
+                    </Badge>
+                  )}
                 </div>
                 {alert.beneficiaryRiskSignals.length > 0 && (
                   <p className="mb-2 text-xs text-slate-500">
