@@ -105,6 +105,16 @@ A periodic report (monthly/quarterly/annual) with structured sections and a summ
 ### FintechMetrics
 Aggregated dashboard metrics: total AUM, flagged transaction count, KYC pass rate, average portfolio return, active fraud alerts, and critical alert count.
 
+## Screenshots
+
+| Screenshot | Caption |
+|---|---|
+| ![Dashboard Header](docs/screenshots/01-dashboard-header.png) | **Dashboard header** — AUM ($113.8M), flagged transaction rate (26%), KYC pass rate (75%), average portfolio return (12.3%), and active fraud alerts (8) at a glance |
+| ![Lead Queue Table](docs/screenshots/02-lead-queue-table.png) | **Transaction and portfolio queue** — All transactions with fraud flags, amounts, portfolio assignment, and investigation status. Sortable by flag severity and risk score |
+| ![Follow-up Tasks](docs/screenshots/03-followup-tasks.png) | **Fraud alert queue** — Priority-sorted fraud alerts with severity levels (critical/high/medium/low), risk progress bars, investigation status, and alert categories |
+| ![Activity Log](docs/screenshots/04-activity-log.png) | **Financial and compliance timeline** — Chronological feed of transactions, fraud resolutions, and KYC status updates with outcome indicators and brief summaries |
+| ![Full Page](docs/screenshots/00-full-page.png) | **Full-page scrollable dashboard** — Complete view of the single-page application with all sections stacked vertically for complete portfolio review |
+
 ## Demo Data Summary
 
 | Dataset | Count | Details |
