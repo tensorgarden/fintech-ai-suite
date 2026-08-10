@@ -64,8 +64,8 @@ describe("Fintech AI Suite", () => {
   });
 
   describe("Fraud Alerts", () => {
-    it("has exactly 8 fraud alerts", () => {
-      expect(fraudAlerts).toHaveLength(8);
+    it("has exactly 9 fraud alerts", () => {
+      expect(fraudAlerts).toHaveLength(9);
     });
 
     it("at least one critical alert exists matching metrics", () => {
