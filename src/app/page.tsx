@@ -349,6 +349,20 @@ export default function FintechDashboard() {
                       Reimbursement {formatInterventionAction(alert.appReimbursementStatus)}
                     </Badge>
                   )}
+                  {alert.trustedContactOutreachStatus !== "not_required" && (
+                    <Badge
+                      variant={
+                        ["no_trusted_contact_on_file", "unable_to_reach"].includes(
+                          alert.trustedContactOutreachStatus,
+                        )
+                          ? "danger"
+                          : "warning"
+                      }
+                      className="text-xs capitalize"
+                    >
+                      Trusted contact {formatInterventionAction(alert.trustedContactOutreachStatus)}
+                    </Badge>
+                  )}
                 </div>
                 {alert.beneficiaryRiskSignals.length > 0 && (
                   <p className="mb-2 text-xs text-slate-500">

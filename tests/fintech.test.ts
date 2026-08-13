@@ -64,8 +64,8 @@ describe("Fintech AI Suite", () => {
   });
 
   describe("Fraud Alerts", () => {
-    it("has exactly 9 fraud alerts", () => {
-      expect(fraudAlerts).toHaveLength(9);
+    it("has exactly 10 fraud alerts", () => {
+      expect(fraudAlerts).toHaveLength(10);
     });
 
     it("at least one critical alert exists matching metrics", () => {
@@ -470,6 +470,53 @@ describe("Fintech AI Suite", () => {
         expect(
           `${alert.title} ${alert.description} ${alert.recommendedAction}`.toLowerCase(),
         ).toMatch(/\bclaim\b|reimburs|liabilit/);
+      }
+    });
+
+    it("keeps trusted-contact outreach status within the supported taxonomy", () => {
+      const validStatuses = new Set([
+        "not_required",
+        "designated_outreach_queued",
+        "contacted",
+        "unable_to_reach",
+        "no_trusted_contact_on_file",
+      ]);
+
+      for (const alert of fraudAlerts) {
+        expect(validStatuses.has(alert.trustedContactOutreachStatus)).toBe(true);
+      }
+    });
+
+    it("pauses elder-scam wires and routes them through trusted-contact outreach", () => {
+      const elderScamAlerts = fraudAlerts.filter((alert) =>
+        /elder|older adult|senior|trusted contact/i.test(
+          `${alert.title} ${alert.description}`,
+        ),
+      );
+
+      expect(elderScamAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const alert of elderScamAlerts) {
+        expect(alert.customerAuthorized).toBe(true);
+        expect(alert.interventionAction).toBe("pause_payment");
+        expect(alert.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        expect(alert.trustedContactOutreachStatus).not.toBe("not_required");
+        expect(alert.recommendedAction.toLowerCase()).toMatch(
+          /trusted contact|hotline|adult protective|aps/,
+        );
+      }
+    });
+
+    it("treats trusted-contact outreach as a safeguard, not release approval", () => {
+      const outreachAlerts = fraudAlerts.filter(
+        (alert) => alert.trustedContactOutreachStatus !== "not_required",
+      );
+
+      expect(outreachAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const alert of outreachAlerts) {
+        expect(alert.interventionAction).not.toBe("analyst_review");
+        expect(alert.status).not.toBe("resolved");
       }
     });
 

@@ -90,6 +90,13 @@ export type PayeeNameCheckStatus =
   | "close_match"
   | "no_match";
 
+export type TrustedContactOutreachStatus =
+  | "not_required"
+  | "designated_outreach_queued"
+  | "contacted"
+  | "unable_to_reach"
+  | "no_trusted_contact_on_file";
+
 export type AppReimbursementStatus =
   | "not_applicable"
   | "assessment_due"
@@ -142,6 +149,7 @@ export interface FraudAlert {
   paymentInstructionVerificationStatus: PaymentInstructionVerificationStatus; // requires independent checks for changed payee instructions
   paymentDelayReviewStatus: PaymentDelayReviewStatus; // records the reasonable-suspicion and customer-notice path for delayed payments
   payeeNameCheckStatus: PayeeNameCheckStatus; // Confirmation of Payee result before payment release
+  trustedContactOutreachStatus: TrustedContactOutreachStatus; // elder/vulnerable-customer trusted-contact outreach before release
   appReimbursementStatus: AppReimbursementStatus; // mandatory APP scam reimbursement claim and shared-liability state
   beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth
   accountHandoverSignals: AccountHandoverSignal[]; // post-onboarding takeover cues before funds move
