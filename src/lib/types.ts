@@ -103,6 +103,12 @@ export type AppReimbursementStatus =
   | "claim_under_review"
   | "reimbursed_shared_liability";
 
+export type MuleInvolvementRole =
+  | "not_applicable"
+  | "unwitting_recruit"
+  | "witting_participant"
+  | "complicit_operator";
+
 export type ScamOriginChannel =
   | "online_platform"
   | "telecom"
@@ -151,6 +157,7 @@ export interface FraudAlert {
   payeeNameCheckStatus: PayeeNameCheckStatus; // Confirmation of Payee result before payment release
   trustedContactOutreachStatus: TrustedContactOutreachStatus; // elder/vulnerable-customer trusted-contact outreach before release
   appReimbursementStatus: AppReimbursementStatus; // mandatory APP scam reimbursement claim and shared-liability state
+  muleInvolvementRole: MuleInvolvementRole; // distinguishes recruited pass-through mules from witting or complicit operators
   beneficiaryRiskSignals: BeneficiaryRiskSignal[]; // payee, mule, or session evidence beyond clean auth
   accountHandoverSignals: AccountHandoverSignal[]; // post-onboarding takeover cues before funds move
   aiImpersonationSignals: AiImpersonationSignal[]; // deepfake or synthetic-media evidence requiring independent verification

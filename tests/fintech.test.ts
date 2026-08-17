@@ -64,8 +64,8 @@ describe("Fintech AI Suite", () => {
   });
 
   describe("Fraud Alerts", () => {
-    it("has exactly 10 fraud alerts", () => {
-      expect(fraudAlerts).toHaveLength(10);
+    it("has exactly 11 fraud alerts", () => {
+      expect(fraudAlerts).toHaveLength(11);
     });
 
     it("at least one critical alert exists matching metrics", () => {
@@ -689,6 +689,62 @@ describe("Fintech AI Suite", () => {
       for (const a of dismissedAlerts) {
         expect(a.falsePositiveRisk).toBeGreaterThan(a.riskScore);
         expect(a.severity).toBe("low");
+      }
+    });
+
+    it("keeps mule involvement roles within the supported taxonomy", () => {
+      const validRoles = new Set([
+        "not_applicable",
+        "unwitting_recruit",
+        "witting_participant",
+        "complicit_operator",
+      ]);
+
+      for (const alert of fraudAlerts) {
+        expect(validRoles.has(alert.muleInvolvementRole)).toBe(true);
+      }
+    });
+
+    it("distinguishes unwitting mule recruits from witting participants", () => {
+      const unwittingRecruits = fraudAlerts.filter(
+        (alert) => alert.muleInvolvementRole === "unwitting_recruit",
+      );
+      const wittingParticipants = fraudAlerts.filter(
+        (alert) => alert.muleInvolvementRole === "witting_participant",
+      );
+
+      expect(unwittingRecruits.length).toBeGreaterThanOrEqual(1);
+      expect(wittingParticipants.length).toBeGreaterThanOrEqual(1);
+
+      for (const alert of unwittingRecruits) {
+        expect(alert.customerOutreachStatus).not.toBe("not_required");
+        expect(alert.recommendedAction.toLowerCase()).toMatch(
+          /warn|educat|outreach|job scam|notify/,
+        );
+      }
+
+      for (const alert of wittingParticipants) {
+        expect(alert.interventionAction).toBe("freeze_mule_route");
+        expect(alert.recommendedAction.toLowerCase()).toMatch(
+          /aggregate|freeze|sar|report/,
+        );
+      }
+    });
+
+    it("freezes recruited-mule pass-through activity before instant settlement", () => {
+      const passThroughAlerts = fraudAlerts.filter(
+        (alert) =>
+          alert.muleInvolvementRole !== "not_applicable" &&
+          alert.fundsMovementChannel === "instant_payment",
+      );
+
+      expect(passThroughAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const alert of passThroughAlerts) {
+        expect(alert.interventionAction).toBe("freeze_mule_route");
+        expect(alert.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        expect(alert.counterpartyIntelligenceStatus).toBe("mule_cluster_match");
+        expect(alert.payeeNameCheckStatus).not.toBe("match");
       }
     });
   });

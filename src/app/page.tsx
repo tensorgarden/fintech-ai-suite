@@ -363,6 +363,18 @@ export default function FintechDashboard() {
                       Trusted contact {formatInterventionAction(alert.trustedContactOutreachStatus)}
                     </Badge>
                   )}
+                  {alert.muleInvolvementRole !== "not_applicable" && (
+                    <Badge
+                      variant={
+                        alert.muleInvolvementRole === "unwitting_recruit"
+                          ? "warning"
+                          : "danger"
+                      }
+                      className="text-xs capitalize"
+                    >
+                      Mule role {formatInterventionAction(alert.muleInvolvementRole)}
+                    </Badge>
+                  )}
                 </div>
                 {alert.beneficiaryRiskSignals.length > 0 && (
                   <p className="mb-2 text-xs text-slate-500">
