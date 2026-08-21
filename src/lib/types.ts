@@ -114,6 +114,7 @@ export type ScamOriginChannel =
   | "telecom"
   | "email"
   | "in_person"
+  | "qr_code"
   | "unknown"
   | "not_applicable";
 

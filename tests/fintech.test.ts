@@ -64,8 +64,8 @@ describe("Fintech AI Suite", () => {
   });
 
   describe("Fraud Alerts", () => {
-    it("has exactly 11 fraud alerts", () => {
-      expect(fraudAlerts).toHaveLength(11);
+    it("has exactly 12 fraud alerts", () => {
+      expect(fraudAlerts).toHaveLength(12);
     });
 
     it("at least one critical alert exists matching metrics", () => {
@@ -164,6 +164,7 @@ describe("Fintech AI Suite", () => {
         "telecom",
         "email",
         "in_person",
+        "qr_code",
         "unknown",
         "not_applicable",
       ]);
@@ -203,6 +204,29 @@ describe("Fintech AI Suite", () => {
       expect(
         authorizedPaymentAlerts.some((a) => a.scamOriginChannel === "telecom"),
       ).toBe(true);
+    });
+
+    it("holds QR-code crypto redirection scams before irreversible wallet payment", () => {
+      const qrCodeAlerts = fraudAlerts.filter(
+        (alert) => alert.scamOriginChannel === "qr_code",
+      );
+
+      expect(qrCodeAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const alert of qrCodeAlerts) {
+        expect(alert.customerAuthorized).toBe(true);
+        expect(alert.fundsMovementChannel).toBe("crypto");
+        expect(alert.interventionAction).toBe("pause_payment");
+        expect(alert.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        expect(alert.counterpartyIntelligenceStatus).toBe("scam_watchlist_hit");
+        expect(alert.payeeNameCheckStatus).toBe("not_available");
+        expect(`${alert.title} ${alert.description}`.toLowerCase()).toMatch(
+          /qr code|wallet|crypto/,
+        );
+        expect(alert.recommendedAction.toLowerCase()).toMatch(
+          /pause|wallet|trusted|report/,
+        );
+      }
     });
 
     it("routes ACH and instant-payment APP risk through counterparty review", () => {
