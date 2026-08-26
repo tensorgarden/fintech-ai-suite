@@ -64,8 +64,8 @@ describe("Fintech AI Suite", () => {
   });
 
   describe("Fraud Alerts", () => {
-    it("has exactly 12 fraud alerts", () => {
-      expect(fraudAlerts).toHaveLength(12);
+    it("has exactly 13 fraud alerts", () => {
+      expect(fraudAlerts).toHaveLength(13);
     });
 
     it("at least one critical alert exists matching metrics", () => {
@@ -657,6 +657,48 @@ describe("Fintech AI Suite", () => {
           /aggregate|linked accounts|freeze|receiving bank|settlement/,
         );
       }
+    });
+
+    it("keeps agent-initiated payments behind deterministic authorization", () => {
+      const validStatuses = new Set([
+        "not_applicable",
+        "mandate_verified",
+        "human_confirmation_required",
+        "scope_exceeded",
+        "mandate_missing",
+      ]);
+      const agentAlerts = fraudAlerts.filter(
+        (alert) => alert.agentAuthorizationStatus !== "not_applicable",
+      );
+
+      expect(agentAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const alert of fraudAlerts) {
+        expect(validStatuses.has(alert.agentAuthorizationStatus)).toBe(true);
+      }
+
+      for (const alert of agentAlerts) {
+        expect(alert.fundsMovementChannel).toBe("instant_payment");
+        expect([
+          "human_confirmation_required",
+          "scope_exceeded",
+          "mandate_missing",
+        ]).toContain(alert.agentAuthorizationStatus);
+        expect(alert.interventionAction).toBe("pause_payment");
+        expect(alert.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        expect(
+          `${alert.description} ${alert.recommendedAction}`.toLowerCase(),
+        ).toMatch(/agent|mandate|spend cap|human confirmation|authorization/);
+      }
+
+      expect(
+        agentAlerts.some(
+          (alert) =>
+            alert.agentAuthorizationStatus === "scope_exceeded" &&
+            alert.payeeNameCheckStatus === "match" &&
+            alert.interventionAction === "pause_payment",
+        ),
+      ).toBe(true);
     });
 
     it("keeps AI impersonation evidence within the supported signal taxonomy", () => {

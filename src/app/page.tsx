@@ -336,6 +336,11 @@ export default function FintechDashboard() {
                       Instructions {formatInterventionAction(alert.paymentInstructionVerificationStatus)}
                     </Badge>
                   )}
+                  {alert.agentAuthorizationStatus !== "not_applicable" && (
+                    <Badge variant="danger" className="text-xs capitalize">
+                      Agent authorization {formatInterventionAction(alert.agentAuthorizationStatus)}
+                    </Badge>
+                  )}
                   {alert.appReimbursementStatus !== "not_applicable" && (
                     <Badge
                       variant={
