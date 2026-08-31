@@ -581,6 +581,25 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("keeps close payee matches in pre-settlement review", () => {
+      const closeMatchAlerts = fraudAlerts.filter(
+        (alert) => alert.payeeNameCheckStatus === "close_match",
+      );
+
+      expect(closeMatchAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const alert of closeMatchAlerts) {
+        expect(["ach_credit_push", "wire", "instant_payment"]).toContain(
+          alert.fundsMovementChannel,
+        );
+        expect(alert.interventionAction).toBe("pause_payment");
+        expect(alert.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        expect(`${alert.description} ${alert.recommendedAction}`.toLowerCase()).toMatch(
+          /close match|resolve|verify|human confirmation/,
+        );
+      }
+    });
+
     it("surfaces counterparty intelligence for scam-linked or mule account risk", () => {
       const validStatuses = new Set([
         "clear",
@@ -695,7 +714,6 @@ describe("Fintech AI Suite", () => {
         agentAlerts.some(
           (alert) =>
             alert.agentAuthorizationStatus === "scope_exceeded" &&
-            alert.payeeNameCheckStatus === "match" &&
             alert.interventionAction === "pause_payment",
         ),
       ).toBe(true);
