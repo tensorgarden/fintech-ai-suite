@@ -270,6 +270,23 @@ export default function FintechDashboard() {
                   >
                     Intel {formatInterventionAction(alert.counterpartyIntelligenceStatus)}
                   </Badge>
+                  {alert.crossBorderRegistryStatus !== "not_required" && (
+                    <Badge
+                      variant={
+                        ["fraud_match", "mule_match"].includes(
+                          alert.crossBorderRegistryStatus,
+                        )
+                          ? "danger"
+                          : alert.crossBorderRegistryStatus === "partial_coverage" ||
+                              alert.crossBorderRegistryStatus === "not_available"
+                            ? "warning"
+                            : "info"
+                      }
+                      className="text-xs capitalize"
+                    >
+                      Registry {formatInterventionAction(alert.crossBorderRegistryStatus)}
+                    </Badge>
+                  )}
                   <Badge variant="warning" className="text-xs">
                     Settle window {alert.settlementWindowSeconds}s
                   </Badge>

@@ -776,6 +776,76 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("tracks cross-border fraud-registry coverage before release", () => {
+      const validStatuses = new Set([
+        "not_required",
+        "not_available",
+        "no_match",
+        "partial_coverage",
+        "fraud_match",
+        "mule_match",
+      ]);
+      const crossBorderAlerts = fraudAlerts.filter((alert) =>
+        /cross-border|offshore|eastern europe/i.test(
+          `${alert.title} ${alert.description}`,
+        ),
+      );
+
+      expect(crossBorderAlerts.length).toBeGreaterThanOrEqual(3);
+
+      for (const alert of fraudAlerts) {
+        expect(validStatuses.has(alert.crossBorderRegistryStatus)).toBe(true);
+      }
+
+      for (const alert of crossBorderAlerts) {
+        expect([
+          "partial_coverage",
+          "fraud_match",
+          "mule_match",
+        ]).toContain(alert.crossBorderRegistryStatus);
+        expect([
+          "pause_payment",
+          "step_up_verification",
+          "freeze_mule_route",
+        ]).toContain(alert.interventionAction);
+        expect(alert.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        expect(
+          `${alert.description} ${alert.recommendedAction}`.toLowerCase(),
+        ).toMatch(/hold|pause|freeze|verify|aggregate|registry|receiving bank/);
+      }
+
+      expect(
+        crossBorderAlerts.some(
+          (alert) => alert.crossBorderRegistryStatus === "partial_coverage",
+        ),
+      ).toBe(true);
+      expect(
+        crossBorderAlerts.some(
+          (alert) => alert.crossBorderRegistryStatus === "mule_match",
+        ),
+      ).toBe(true);
+    });
+
+    it("keeps cross-border mule matches on a freeze path", () => {
+      const muleRegistryAlerts = fraudAlerts.filter(
+        (alert) => alert.crossBorderRegistryStatus === "mule_match",
+      );
+
+      expect(muleRegistryAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const alert of muleRegistryAlerts) {
+        expect(alert.beneficiaryRiskSignals).toContain("mule_network_link");
+        expect(alert.interventionAction).toBe("freeze_mule_route");
+        expect(alert.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        expect(`${alert.title} ${alert.description}`.toLowerCase()).toMatch(
+          /mule|fincen|fca|cross-border/,
+        );
+        expect(alert.recommendedAction.toLowerCase()).toMatch(
+          /aggregate|freeze|receiving bank|settlement/,
+        );
+      }
+    });
+
     it("keeps mule involvement roles within the supported taxonomy", () => {
       const validRoles = new Set([
         "not_applicable",
