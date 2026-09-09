@@ -90,6 +90,14 @@ export type PayeeNameCheckStatus =
   | "close_match"
   | "no_match";
 
+export type PaymentRouteValidationStatus =
+  | "not_required"
+  | "pre_validated"
+  | "beneficiary_unverified"
+  | "route_mismatch"
+  | "partial_coverage"
+  | "not_available";
+
 export type CrossBorderFraudRegistryStatus =
   | "not_required"
   | "not_available"
@@ -171,6 +179,7 @@ export interface FraudAlert {
   paymentInstructionVerificationStatus: PaymentInstructionVerificationStatus; // requires independent checks for changed payee instructions
   paymentDelayReviewStatus: PaymentDelayReviewStatus; // records the reasonable-suspicion and customer-notice path for delayed payments
   payeeNameCheckStatus: PayeeNameCheckStatus; // Confirmation of Payee result before payment release
+  paymentRouteValidationStatus: PaymentRouteValidationStatus; // pre-validation result for the beneficiary and payment route before execution
   crossBorderRegistryStatus: CrossBorderFraudRegistryStatus; // coverage or match state from interoperable fraud registries
   agentAuthorizationStatus: AgentAuthorizationStatus; // deterministic authorization state for delegated payment agents
   trustedContactOutreachStatus: TrustedContactOutreachStatus; // elder/vulnerable-customer trusted-contact outreach before release

@@ -287,6 +287,24 @@ export default function FintechDashboard() {
                       Registry {formatInterventionAction(alert.crossBorderRegistryStatus)}
                     </Badge>
                   )}
+                  {alert.paymentRouteValidationStatus !== "not_required" && (
+                    <Badge
+                      variant={
+                        ["beneficiary_unverified", "route_mismatch"].includes(
+                          alert.paymentRouteValidationStatus,
+                        )
+                          ? "danger"
+                          : ["partial_coverage", "not_available"].includes(
+                                alert.paymentRouteValidationStatus,
+                              )
+                            ? "warning"
+                            : "info"
+                      }
+                      className="text-xs capitalize"
+                    >
+                      Route {formatInterventionAction(alert.paymentRouteValidationStatus)}
+                    </Badge>
+                  )}
                   <Badge variant="warning" className="text-xs">
                     Settle window {alert.settlementWindowSeconds}s
                   </Badge>

@@ -846,6 +846,64 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("requires explicit payment-route pre-validation before execution", () => {
+      const validStatuses = new Set([
+        "not_required",
+        "pre_validated",
+        "beneficiary_unverified",
+        "route_mismatch",
+        "partial_coverage",
+        "not_available",
+      ]);
+      const paymentAlerts = fraudAlerts.filter((alert) =>
+        ["ach_credit_push", "wire", "instant_payment", "crypto"].includes(
+          alert.fundsMovementChannel,
+        ),
+      );
+
+      expect(paymentAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const alert of fraudAlerts) {
+        expect(validStatuses.has(alert.paymentRouteValidationStatus)).toBe(true);
+      }
+
+      for (const alert of paymentAlerts) {
+        expect(alert.paymentRouteValidationStatus).not.toBe("not_required");
+        if (
+          [
+            "beneficiary_unverified",
+            "route_mismatch",
+            "partial_coverage",
+            "not_available",
+          ].includes(alert.paymentRouteValidationStatus)
+        ) {
+          expect([
+            "pause_payment",
+            "step_up_verification",
+            "freeze_mule_route",
+          ]).toContain(alert.interventionAction);
+          expect(alert.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        }
+      }
+
+      expect(
+        paymentAlerts.some(
+          (alert) => alert.paymentRouteValidationStatus === "pre_validated",
+        ),
+      ).toBe(true);
+
+      expect(
+        paymentAlerts.some(
+          (alert) => alert.paymentRouteValidationStatus === "partial_coverage",
+        ),
+      ).toBe(true);
+      expect(
+        paymentAlerts.some(
+          (alert) => alert.paymentRouteValidationStatus === "route_mismatch",
+        ),
+      ).toBe(true);
+    });
+
     it("keeps mule involvement roles within the supported taxonomy", () => {
       const validRoles = new Set([
         "not_applicable",
