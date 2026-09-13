@@ -600,6 +600,30 @@ describe("Fintech AI Suite", () => {
       }
     });
 
+    it("does not treat a payee match as clearance when other payment risk remains", () => {
+      const matchedPaymentAlerts = fraudAlerts.filter(
+        (alert) =>
+          alert.payeeNameCheckStatus === "match" &&
+          ["ach_credit_push", "wire", "instant_payment"].includes(
+            alert.fundsMovementChannel,
+          ),
+      );
+
+      expect(matchedPaymentAlerts.length).toBeGreaterThanOrEqual(1);
+
+      for (const alert of matchedPaymentAlerts) {
+        const hasIndependentRisk =
+          alert.customerAuthorized ||
+          alert.counterpartyIntelligenceStatus !== "clear" ||
+          alert.paymentRouteValidationStatus !== "pre_validated";
+
+        if (hasIndependentRisk) {
+          expect(alert.interventionAction).not.toBe("analyst_review");
+          expect(alert.settlementWindowSeconds).toBeLessThanOrEqual(300);
+        }
+      }
+    });
+
     it("surfaces counterparty intelligence for scam-linked or mule account risk", () => {
       const validStatuses = new Set([
         "clear",
