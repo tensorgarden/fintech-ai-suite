@@ -58,6 +58,18 @@ function formatInterventionAction(action: string): string {
   return action.replaceAll("_", " ");
 }
 
+function settlementWindowVariant(
+  seconds: number,
+): "danger" | "warning" | "info" {
+  if (seconds <= 60) return "danger";
+  if (seconds <= 300) return "warning";
+  return "info";
+}
+
+function formatSettlementWindow(seconds: number): string {
+  return seconds === 0 ? "Settlement window expired" : `${seconds}s remaining`;
+}
+
 export default function FintechDashboard() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -305,8 +317,11 @@ export default function FintechDashboard() {
                       Route {formatInterventionAction(alert.paymentRouteValidationStatus)}
                     </Badge>
                   )}
-                  <Badge variant="warning" className="text-xs">
-                    Settle window {alert.settlementWindowSeconds}s
+                  <Badge
+                    variant={settlementWindowVariant(alert.settlementWindowSeconds)}
+                    className="text-xs"
+                  >
+                    {formatSettlementWindow(alert.settlementWindowSeconds)}
                   </Badge>
                   {alert.customerAuthorized && (
                     <Badge variant="danger" className="text-xs">
